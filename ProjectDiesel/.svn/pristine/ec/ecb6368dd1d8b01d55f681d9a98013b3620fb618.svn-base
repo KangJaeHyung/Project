@@ -1,0 +1,85 @@
+package Diesel;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
+public class LoginPage {
+	JFrame j;
+	 LoginPage(DiselFrame j){
+		 this.j=j;
+	 }
+	private JLabel loginBox;
+	JTextField idField;
+	JPasswordField passwordField;
+	private ImageIcon loginBoxImage = new ImageIcon(Main.class.getResource("../DieselImage/LoginBox.png"));
+	
+	public void screenDraw(Graphics2D g) {
+		loginBoxImage = new ImageIcon(loginBoxImage.getImage().getScaledInstance(400, 240, Image.SCALE_FAST));
+		loginBox = new JLabel(loginBoxImage);
+		passwordField= new JPasswordField("Password",20);
+		passwordField.setForeground(Color.gray);
+		passwordField.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				if(passwordField.getText().equals("")) {
+					passwordField.setForeground(Color.gray);
+					passwordField.setText("Password");
+					
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				if(passwordField.getText().equals("Password")&&passwordField.getForeground()==Color.gray) {
+					passwordField.setText("");
+					passwordField.setForeground(Color.BLACK);
+				}
+				
+			}
+		});
+		
+		idField= new JTextField("ID",20);
+		idField.setForeground(Color.gray);
+		idField.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				if(idField.getText().equals("")) {
+					idField.setForeground(Color.gray);
+					idField.setText("ID");
+					
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				if(idField.getText().equals("ID")&&passwordField.getForeground()==Color.gray) {
+					idField.setText("");
+					idField.setForeground(Color.BLACK);
+				}
+				
+				
+			}
+		});
+		loginBox.setBounds((Main.SCREEN_WIDTH-loginBoxImage.getIconWidth())/2,400,loginBoxImage.getIconWidth(),loginBoxImage.getIconHeight());
+		loginBox.setLayout(null);
+		idField.setBounds(50, 50, 200, 30);
+		passwordField.setBounds(50, 100, 200, 30);
+		loginBox.add(idField);
+		loginBox.add(passwordField);
+		j.add(loginBox);
+		
+		
+	}
+}
