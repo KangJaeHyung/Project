@@ -1,4 +1,4 @@
-package Diesel;
+package DieselKJH;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -13,6 +15,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -37,10 +40,10 @@ public class LoginPage extends JLabel{
 
 	LoginPage(DiselFrame j) {
 		this.j = j;
-		this.setIcon(loginBoxImage);
+		
 		
 		loginBoxImage = new ImageIcon(loginBoxImage.getImage().getScaledInstance(400, 240, Image.SCALE_FAST));
-
+		this.setIcon(loginBoxImage);
 		// 로그인 버튼
 		loginButton = new JButton(loginBasic);
 		loginButton.setBounds(280, 45, 90, 90);
@@ -50,7 +53,24 @@ public class LoginPage extends JLabel{
 		loginButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.exit(0);
+				if(idField.getForeground() == Color.gray) {
+					JOptionPane.showMessageDialog(null,"ID를 입력해 주세요.");
+					return;
+				}
+				if(passwordField.getForeground() == Color.gray) {
+					JOptionPane.showMessageDialog(null,"비밀번호를 입력해 주세요.");
+					return;
+				}
+				if(idField.getText().equals("fuko")&&passwordField.getText().equals("1234")) {
+					DiselFrame.isLoginPage = false;
+					DiselFrame.isMainPage = true;
+					DiselFrame.isButtonPage= true;
+					passwordField.setText("");
+					idField.setText("");
+				}else {
+					JOptionPane.showMessageDialog(null,"ID, 비밀번호를 정확하게 입력해 주세요.");
+					passwordField.setText("");
+				}
 			}
 
 			@Override
@@ -103,7 +123,9 @@ public class LoginPage extends JLabel{
 		FindButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.exit(0);
+				DiselFrame.isLoginPage = false;
+				DiselFrame.isFindPage = true;
+				
 			}
 
 			@Override
@@ -171,6 +193,35 @@ public class LoginPage extends JLabel{
 					passwordField.setForeground(Color.BLACK);
 				}
 			}
+		});
+		passwordField.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode()==KeyEvent.VK_ENTER) {
+					if(idField.getForeground() == Color.gray) {
+						JOptionPane.showMessageDialog(null,"ID를 입력해 주세요.");
+						return;
+					}
+					if(passwordField.getForeground() == Color.gray) {
+						JOptionPane.showMessageDialog(null,"비밀번호를 입력해 주세요.");
+						return;
+					}
+					if(idField.getText().equals("fuko")&&passwordField.getText().equals("1234")) {
+						DiselFrame.isLoginPage = false;
+						DiselFrame.isMainPage = true;
+						DiselFrame.isButtonPage= true;
+						passwordField.setText("");
+						idField.setText("");
+					}else {
+						JOptionPane.showMessageDialog(null,"ID, 비밀번호를 정확하게 입력해 주세요.");
+						passwordField.setText("");
+						
+					}
+				}
+			}
+			
+			
 		});
 
 		idField = new JTextField("ID", 20);
