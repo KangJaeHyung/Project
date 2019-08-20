@@ -2,55 +2,109 @@ package Diesel;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-public class LoginPage extends JLabel{
+public class LoginPage extends JLabel {
 	JFrame j;
 	JTextField idField;
 	JPasswordField passwordField;
 	ImageIcon loginBoxImage = new ImageIcon(Main.class.getResource("../DieselImage/LoginBox.png"));
-	ImageIcon loginBasic= new ImageIcon(Main.class.getResource("../DieselImage/로그인_로그인_일반.png"));
-	ImageIcon loginPressed= new ImageIcon(Main.class.getResource("../DieselImage/로그인_로그인_선택.png"));
-	ImageIcon JoinBasic= new ImageIcon(Main.class.getResource("../DieselImage/로그인_회원가입_일반.png"));
-	ImageIcon JoinPressed= new ImageIcon(Main.class.getResource("../DieselImage/로그인_회원가입_선택.png"));
-	ImageIcon exitBasic= new ImageIcon(Main.class.getResource("../DieselImage/로그인_종료_일반.png"));
-	ImageIcon exitPressed= new ImageIcon(Main.class.getResource("../DieselImage/로그인_종료_선택.png"));
-	ImageIcon FindBasic= new ImageIcon(Main.class.getResource("../DieselImage/로그인_계정찾기_일반.png"));
-	ImageIcon FindPressed= new ImageIcon(Main.class.getResource("../DieselImage/로그인_계정찾기_선택.png"));
+	ImageIcon loginBasic = new ImageIcon(Main.class.getResource("../DieselImage/로그인_로그인_일반.png"));
+	ImageIcon loginPressed = new ImageIcon(Main.class.getResource("../DieselImage/로그인_로그인_선택.png"));
+	ImageIcon JoinBasic = new ImageIcon(Main.class.getResource("../DieselImage/로그인_회원가입_일반.png"));
+	ImageIcon JoinPressed = new ImageIcon(Main.class.getResource("../DieselImage/로그인_회원가입_선택.png"));
+	ImageIcon exitBasic = new ImageIcon(Main.class.getResource("../DieselImage/로그인_종료_일반.png"));
+	ImageIcon exitPressed = new ImageIcon(Main.class.getResource("../DieselImage/로그인_종료_선택.png"));
+	ImageIcon FindBasic = new ImageIcon(Main.class.getResource("../DieselImage/로그인_계정찾기_일반.png"));
+	ImageIcon FindPressed = new ImageIcon(Main.class.getResource("../DieselImage/로그인_계정찾기_선택.png"));
 	private JButton loginButton;
 	private JButton JoinButton;
 	private JButton exitButton;
 	private JButton FindButton;
 
-
 	LoginPage(DiselFrame j) {
 		this.j = j;
-		this.setIcon(loginBoxImage);
-		
-		loginBoxImage = new ImageIcon(loginBoxImage.getImage().getScaledInstance(400, 240, Image.SCALE_FAST));
 
+		loginBoxImage = new ImageIcon(loginBoxImage.getImage().getScaledInstance(400, 240, Image.SCALE_FAST));
+		this.setIcon(loginBoxImage);
 		// 로그인 버튼
 		loginButton = new JButton(loginBasic);
 		loginButton.setBounds(280, 45, 90, 90);
 		loginButton.setBorderPainted(false);
 		loginButton.setContentAreaFilled(false);
 		loginButton.setFocusPainted(false);
+
 		loginButton.addMouseListener(new MouseAdapter() {
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.exit(0);
+				if (idField.getForeground() == Color.gray) {
+					JOptionPane.showMessageDialog(null, "ID를 입력해 주세요.");
+					return;
+				}
+				if (passwordField.getForeground() == Color.gray) {
+					JOptionPane.showMessageDialog(null, "비밀번호를 입력해 주세요.");
+					return;
+				}
+				try {
+
+					Customer_info ci2 = new Customer_info();
+					CrudProcess crud = new CrudProcess();
+					ci2 = crud.selectInfo(idField.getText());
+					String user_id = ci2.getUser_id();
+					String pass = ci2.getPassword();
+
+					if (idField.getText().equals(user_id) && passwordField.getText().equals(pass)) {
+
+						DiselFrame.isLoginPage = false;
+						DiselFrame.isMainPage = true;
+						DiselFrame.isButtonPage = true;
+
+						passwordField.setText("Password");
+						idField.setText("ID");
+						idField.setForeground(Color.gray);
+						passwordField.setForeground(Color.gray);
+
+						DiselFrame.loginCustomer = ci2;
+						HashMap<String, Object> map = new HashMap();
+						map.put("user_id", ci2.getUser_id());
+						DiselFrame.mylist = crud.selectGetGameInfo(map);
+						// customer_info의 아이디와 game_list의 아이디가 일치한 결과를 가져옴
+						if(DiselFrame.loginCustomer.getUser_stat()==2) {
+							JOptionPane.showMessageDialog(null, "관리자로 로그인했습니다");
+							DiselFrame.isManagement=true;
+						}
+						if(DiselFrame.loginCustomer.getUser_stat()==1) {
+							DiselFrame.isManagement=false;
+							JOptionPane.showMessageDialog(null, "밴 유저입니다");
+							
+						}
+						DiselFrame.myp.setPanel();
+						DiselFrame.bp.Cash_Label.setText(DiselFrame.loginCustomer.getUser_cash() + " 원");
+					} else {
+						JOptionPane.showMessageDialog(null, "ID, 비밀번호를 정확하게 입력해 주세요.");
+						passwordField.setText("");
+					}
+				} catch (Exception e2) {
+					JOptionPane.showMessageDialog(null, "ID, 비밀번호를 정확하게 입력해 주세요.");
+					passwordField.setText("");
+				}
 			}
 
 			@Override
@@ -76,8 +130,9 @@ public class LoginPage extends JLabel{
 		JoinButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				DiselFrame.isLoginPage=false;
-				DiselFrame.isJoinPage=true;
+				DiselFrame.isLoginPage = false;
+				DiselFrame.isJoinPage = true;
+				 
 			}
 
 			@Override
@@ -103,7 +158,10 @@ public class LoginPage extends JLabel{
 		FindButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.exit(0);
+				DiselFrame.isLoginPage = false;
+				DiselFrame.isFindPage = true;
+				 
+
 			}
 
 			@Override
@@ -120,10 +178,7 @@ public class LoginPage extends JLabel{
 		});
 		this.add(FindButton);
 
-		
-		
-		
-		//종료 버튼
+		// 종료 버튼
 		exitButton = new JButton(exitBasic);
 		exitButton.setBounds(265, 155, 100, 50);
 		exitButton.setBorderPainted(false);
@@ -149,9 +204,6 @@ public class LoginPage extends JLabel{
 		});
 		this.add(exitButton);
 
-		
-		
-		
 		passwordField = new JPasswordField("Password", 20);
 		passwordField.setForeground(Color.gray);
 		passwordField.addFocusListener(new FocusListener() {
@@ -171,6 +223,69 @@ public class LoginPage extends JLabel{
 					passwordField.setForeground(Color.BLACK);
 				}
 			}
+		});
+		passwordField.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					if (idField.getForeground() == Color.gray) {
+						JOptionPane.showMessageDialog(null, "ID를 입력해 주세요.");
+						return;
+					}
+					if (passwordField.getForeground() == Color.gray) {
+						JOptionPane.showMessageDialog(null, "비밀번호를 입력해 주세요.");
+						return;
+					}
+
+					try {
+
+						Customer_info ci2 = new Customer_info();
+						CrudProcess crud = new CrudProcess();
+						ci2 = crud.selectInfo(idField.getText());
+						String user_id = ci2.getUser_id();
+						String pass = ci2.getPassword();
+
+						if (idField.getText().equals(user_id) && passwordField.getText().equals(pass)) {
+
+							DiselFrame.isLoginPage = false;
+							DiselFrame.isMainPage = true;
+							DiselFrame.isButtonPage = true;
+
+							passwordField.setText("Password");
+							idField.setText("ID");
+							idField.setForeground(Color.gray);
+							passwordField.setForeground(Color.gray);
+
+							DiselFrame.loginCustomer = ci2;
+							HashMap<String, Object> map = new HashMap();
+							map.put("user_id", ci2.getUser_id());
+							DiselFrame.mylist = crud.selectGetGameInfo(map);
+							
+							if(DiselFrame.loginCustomer.getUser_stat()==2) {
+								JOptionPane.showMessageDialog(null, "관리자로 로그인했습니다");
+								DiselFrame.isManagement=true;
+							}
+							if(DiselFrame.loginCustomer.getUser_stat()==1) {
+								DiselFrame.isManagement=false;
+								JOptionPane.showMessageDialog(null, "밴 유저입니다");
+								
+							}
+							// customer_info의 아이디와 game_list의 아이디가 일치한 결과를 가져옴
+							DiselFrame.myp.setPanel();
+							DiselFrame.bp.Cash_Label.setText(DiselFrame.loginCustomer.getUser_cash() + " 원");
+						} else {
+							JOptionPane.showMessageDialog(null, "ID, 비밀번호를 정확하게 입력해 주세요.");
+							passwordField.setText("");
+						}
+					} catch (Exception e2) {
+						JOptionPane.showMessageDialog(null, "ID, 비밀번호를 정확하게 입력해 주세요.");
+						passwordField.setText("");
+					}
+				}
+			}
+
 		});
 
 		idField = new JTextField("ID", 20);
@@ -194,14 +309,12 @@ public class LoginPage extends JLabel{
 
 			}
 		});
-		
+
 		idField.setBounds(50, 50, 200, 30);
 		passwordField.setBounds(50, 100, 200, 30);
 		this.add(idField);
 		this.add(passwordField);
-		
-		
-		
+		 
 	}
-	
+
 }
