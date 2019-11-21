@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Diesel.mapper1">
+	<insert id="insertInform" parameterType="Diesel.Customer_info">
+		insert into
+		pd_customer_info
+		values(
+		#{user_id},#{password},#{e_mail},#{phone_num},#{country},#{user_cash},#{user_stat})
+	</insert>
+	<select id="selectInform" resultType="Diesel.Customer_info">
+		select * from
+		pd_customer_info where user_id=#{user_id}
+	</select>
+	<select id="selectgetGameList" resultType="Diesel.MyList">
+		select * from
+		pd_game_list where user_id=#{user_id}
+	</select>
+	<select id="selectGameInfo" resultType="Diesel.Game_info">
+		select * from
+		pd_game_info
+	</select>
+
+
+
+	<update id="updateCash" parameterType="Diesel.Game_info">
+		update pd_customer_info
+		set user_cash =#{user_cash} where user_id
+		=#{user_id}
+	</update>
+
+	<insert id="insertCharge" parameterType="Diesel.Charge_sale">
+		insert into
+		pd_charge_sale
+		values(
+		#{money_order_code},#{user_id},#{charge_cash},#{charge_date})
+	</insert>
+	<insert id="insertRefund" parameterType="Diesel.Charge_refund">
+		insert into
+		pd_charge_refund
+		values(
+		#{money_order_code},#{user_id},#{refund_cash},#{refund_date})
+	</insert>
+
+	<select id="selectChargeCode" resultType="String">
+		select * from(select *
+		from pd_charge_sale order by money_order_code desc) pd_charge_sale
+		where rownum = 1
+	</select>
+
+	<select id="selectRefundCode" resultType="String">
+		select * from(select *
+		from pd_charge_refund order by money_order_code desc) pd_charge_refund
+		where rownum = 1
+	</select>
+
+
+
+	<!-- 비밀번호 찾는 매퍼 -->
+	<select id="selectFindPass" resultType="Diesel.Customer_info">
+		select * from pd_customer_info
+		<where>
+			<if test="e_mail !=null">and e_mail=#{e_mail}
+			</if>
+			<if test="phone_num !=null">and phone_num=#{phone_num}
+			</if>
+			<if test="user_id !=null">and user_id=#{user_id}
+			</if>
+		</where>
+	</select>
+
+	<!-- ID 찾는 매퍼 -->
+	<select id="selectFindId" resultType="Diesel.Customer_info">
+		select * from pd_customer_info
+		<where>
+			<if test="e_mail !=null">and e_mail=#{e_mail}
+			</if>
+			<if test="phone_num !=null">and phone_num=#{phone_num}
+			</if>
+		</where>
+	</select>
+
+	<!-- 개인정보 변경하는 매퍼 -->
+	<update id="updateInform" parameterType="Diesel.Customer_info">
+		update pd_customer_info
+		set
+		password=#{password},e_mail=#{e_mail},phone_num=#{phone_num},country=#{country}
+		where user_id=#{user_id}
+	</update>
+
+	<!-- 게임 구매할때 게임리스트db에 자료 넣는 매퍼 -->
+	<insert id="insertGameList" parameterType="Diesel.MyList">
+		insert into
+		pd_game_list
+		values(#{user_id},#{game_code})
+	</insert>
+
+	<!-- 게임 구매할때 매출관리db에 자료 넣는 매퍼 -->
+	<update id="updateSalesInfo" parameterType="Diesel.Sales_info">
+		update pd_sales_info
+		set
+		sale_record=sale_record+1,sales_gross=sales_gross+game_price
+		where
+		game_code=#{game_code}
+	</update>
+
+	<!-- 환불 유무 -->
+	<update id="updateIsRefunded" parameterType="Diesel.Game_sale">
+		update pd_game_sale
+		set
+		isRefunded=1
+		where
+		game_order_code=#{game_order_code} and
+		game_code=#{game_code} and
+		isRefunded=0
+	</update>
+
+	<!-- 게임 구매할때 게임판매db에 자료넣는 매퍼 -->
+	<insert id="insertGameSale" parameterType="Diesel.Game_sale">
+		insert into
+		pd_game_sale
+		values(#{game_order_code},#{user_id},#{payment},#{order_date},#{game_code},#{isRefunded})
+	</insert>
+	<select id="selectGameOrderCode" resultType="String"> select *
+		from(select * from pd_game_sale order by game_order_code desc)
+		pd_game_sale where rownum = 1
+	</select>
+
+
+	<!-- 게임환불시 게임리스트db에서 환불된 게임 지우는 매퍼 -->
+	<delete id="deleteMyList" parameterType="Diesel.MyList">
+		delete from pd_game_list
+		where game_code=#{game_code} and user_id=#{user_id}
+
+	</delete>
+	<!-- 게임구매이력db에서 구매일련번호 찾아오는 매퍼 -->
+	<select id="selectgameSale" resultType="Diesel.Game_sale">
+		select * from
+		pd_game_sale
+		where game_code=#{game_code} and user_id=#{user_id} and
+		isrefunded=0
+	</select>
+
+	<!-- 게임환불db에 자료 넣는 매퍼 -->
+	<insert id="insertGameRefund" parameterType="Diesel.Game_refund">
+		insert into
+		pd_game_refund
+		values(#{game_order_code},#{refund_date})
+	</insert>
+
+
+	<update id="updateSalesInfo2"
+		parameterType="Diesel.Sales_info">
+		update pd_sales_info
+		set
+		sale_record=sale_record-1,sales_gross=sales_gross-game_price
+		where
+		game_code=#{game_code}
+	</update>
+	<!-- 08월07일 작업부분 끝 -->
+
+
+	<select id="selectAllUser" resultType="Diesel.Customer_info"> <!-- 이산해 -->
+		select * from pd_customer_info
+	</select>
+
+	<insert id="insertGame" parameterType="Diesel.Game_info"> <!-- 이산해 -->
+		insert into pd_game_info
+		values(
+		#{game_code}, #{game_name},
+		#{game_price}, #{game_launch_date},
+		#{game_grade}, #{game_main_genre},
+		#{game_sub_genre},
+		#{game_image_dir}, #{game_bigimage_dir},
+		#{game_icon_dir}
+		)
+	</insert>
+
+	<insert id="insertSales" parameterType="Diesel.Sales_info"> <!-- 이산해 -->
+		insert into pd_sales_info
+		values(
+		#{game_code}, #{game_name},
+		#{sale_record}, #{game_price}, #{sales_gross}
+		)
+	</insert>
+
+
+	<!-- 수입 매퍼 -->
+	<select id="selectDayIncome" parameterType="Diesel.Charge_sale"
+		resultType="Integer">
+		select sum(charge_cash) from pd_charge_sale where charge_date like
+		#{charge_date}||'%'
+	</select>
+	<select id="selectDayIncome2" parameterType="Diesel.Charge_refund"
+		resultType="Integer">
+		select sum(refund_cash) from pd_charge_refund where refund_date like
+		#{refund_date}||'%'
+	</select>
+	
+	
+	<!-- 충전회수 매퍼 -->
+	<select id="selectCountCash" parameterType="Diesel.Charge_sale"
+		resultType="Integer">
+		select Count(charge_cash) from pd_charge_sale where charge_date like
+		#{charge_date}||'%'
+	</select>
+	
+	
+	<!-- 매출정보 확인시 가져오는 구매내역 리스트 호출 매퍼 -->
+	<select id="selectCharge" resultType="Diesel.Charge_sale">
+	select * from pd_charge_sale where user_id=#{user_id}
+	order by money_order_code asc
+	</select>
+	
+	<!-- 매출정보 확인시 가져오는 전체 구매내역 리스트 호출 매퍼2 -->
+	<select id="selectAllCharge" resultType="Diesel.Charge_sale">
+	select * from pd_charge_sale
+	order by money_order_code asc
+	</select>
+	
+	<!-- 환불정보 호출 -->
+	<select id="selectAllRefund" resultType="Diesel.Charge_refund">
+	select * from pd_charge_refund
+	order by money_order_code asc
+	</select>
+	
+	<!-- 환불정보 조건 호출 -->
+	<select id="selectRefund" resultType="Diesel.Charge_refund">
+	select * from pd_charge_refund where user_id=#{user_id}
+	order by money_order_code asc
+	</select>
+	
+		
+	<!-- 개인정보 변경하는 매퍼 -->	
+	<update id="updateAdminInform" 
+	parameterType="Diesel.Customer_info">
+	update pd_customer_info
+	set e_mail=#{e_mail},phone_num=#{phone_num},country=#{country}, user_stat=#{user_stat}
+	where user_id=#{user_id}
+	</update>
+
+</mapper>

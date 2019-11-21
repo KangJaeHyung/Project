@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RhythmGame4.myMapper">
+	<insert id="insert_legend_of_moonlight" 
+		parameterType="RhythmGame4.Result">
+		insert into legend_of_moonlight_score
+		values(#{play_date}, 
+		#{score}, #{max_combo}, #{kool}, #{cool}, #{good}, #{miss})
+	</insert>
+	<insert id="insert_mirro_night" 
+		parameterType="RhythmGame4.Result">
+		insert into mirro_night_score
+		values(#{play_date}, 
+		#{score}, #{max_combo}, #{kool}, #{cool}, #{good}, #{miss})
+	</insert>
+</mapper>
+
+
+
+
+
+
+
